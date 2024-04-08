@@ -20,13 +20,13 @@ const getQueryClient = () => {
   return (clientQueryClientSingleton ??= createQueryClient());
 };
 
-export const api = createTRPCReact<AppRouter>();
+export const apiClient = createTRPCReact<AppRouter>();
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   const [trpcClient] = useState(() =>
-    api.createClient({
+    apiClient.createClient({
       links: [
         loggerLink({
           enabled: (op) =>
@@ -43,14 +43,14 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
           },
         }),
       ],
-    })
+    }),
   );
 
   return (
     <QueryClientProvider client={queryClient}>
-      <api.Provider client={trpcClient} queryClient={queryClient}>
+      <apiClient.Provider client={trpcClient} queryClient={queryClient}>
         {props.children}
-      </api.Provider>
+      </apiClient.Provider>
     </QueryClientProvider>
   );
 }
