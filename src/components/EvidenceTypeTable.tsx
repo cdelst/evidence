@@ -1,9 +1,16 @@
 "use client";
 
 import { apiClient } from "~/trpc/react";
-import { columns } from "@/components/EvidenceTypeTable/columns";
 import { Table } from "@/components/Table";
 import { type EvidenceType } from "@prisma/client";
+import { type ColumnDef } from "@tanstack/react-table";
+
+const columns: ColumnDef<EvidenceType>[] = [
+  {
+    accessorKey: "name",
+    header: "Name",
+  },
+];
 
 export function EvidenceTypeTable() {
   const { data } = apiClient.evidenceType.getAllEvidenceTypes.useQuery();

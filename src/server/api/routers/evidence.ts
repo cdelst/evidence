@@ -4,7 +4,12 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 export const evidenceRouter = createTRPCRouter({
   // Get all evidence
   getAllEvidence: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.evidence.findMany();
+    return ctx.db.evidence.findMany({
+      include: {
+        type: true,
+        tags: true,
+      },
+    });
   }),
 
   // Create a new evidence
@@ -18,10 +23,12 @@ export const evidenceRouter = createTRPCRouter({
         impact: z.number().min(1).max(5),
         tags: z.array(z.string().cuid()),
         context: z.string().min(1),
-        date: z.date().max(new Date()),
+        date: z.date(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      console.log(input);
+
       return ctx.db.evidence.create({
         data: {
           title: input.title,
@@ -68,6 +75,14 @@ export const evidenceRouter = createTRPCRouter({
       return ctx.db.evidence.update({
         where: { id: input.id },
         data: updateData,
+      });
+    }),
+
+  deleteEvidence: protectedProcedure
+    .input(z.object({ id: z.string().cuid() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.evidence.delete({
+        where: { id: input.id },
       });
     }),
 });

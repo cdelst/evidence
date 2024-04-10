@@ -11,35 +11,32 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { z } from "zod";
-import { EvidenceType, Prisma } from "@prisma/client";
 import { apiClient } from "~/trpc/react";
 
-const EvidenceTypeFormSchema = z.object({
-  evidenceType: z.string().min(1, { message: "Evidence type is required" }),
+const TagFormSchema = z.object({
+  tagName: z.string().min(1, { message: "Tag name is required" }),
 });
 
-type EvidenceTypeFormSchema = z.infer<typeof EvidenceTypeFormSchema>;
+type TagFormSchema = z.infer<typeof TagFormSchema>;
 
-const defaultValues: EvidenceTypeFormSchema = {
-  evidenceType: "",
+const defaultValues: TagFormSchema = {
+  tagName: "",
 };
 
-export function EvidenceTypeForm() {
-  const form = useForm<EvidenceTypeFormSchema>({
-    resolver: zodResolver(EvidenceTypeFormSchema),
+export function TagForm() {
+  const form = useForm<TagFormSchema>({
+    resolver: zodResolver(TagFormSchema),
     defaultValues,
   }); // Initialize the form
 
-  const createEvidenceType =
-    apiClient.evidenceType.createEvidenceType.useMutation();
+  const createTag = apiClient.tags.createTag.useMutation();
 
   const apiUtils = apiClient.useUtils();
   const handleSubmit = form.handleSubmit(async (data) => {
-    await createEvidenceType.mutateAsync({ name: data.evidenceType });
-    await apiUtils.evidenceType.invalidate();
+    await createTag.mutateAsync({ name: data.tagName });
+    await apiUtils.tags.invalidate();
 
     form.reset();
   });
@@ -50,20 +47,16 @@ export function EvidenceTypeForm() {
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 rounded-xl bg-card p-6"
       >
-        <FormLabel>Create evidence type</FormLabel>
+        <FormLabel>Create Tag</FormLabel>
         <FormField
-          name="evidenceType"
+          name="tagName"
           control={form.control}
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>Evidence Type</FormLabel>
+                <FormLabel>Tag Name</FormLabel>
                 <FormControl {...field}>
-                  <Input
-                    type="text"
-                    placeholder="Enter evidence type"
-                    {...field}
-                  />
+                  <Input type="text" placeholder="Enter tag name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

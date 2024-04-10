@@ -49,6 +49,9 @@ export function Table<TData, TValue>({
                   </TableHead>
                 );
               })}
+              <TableHead className="text-right text-destructive">
+                Delete?
+              </TableHead>
             </TableRow>
           ))}
         </TableHeader>
@@ -58,24 +61,26 @@ export function Table<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() ? "selected" : undefined}
-                className="text-foreground"
+                className="align-middle text-foreground"
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
-                    className="flex items-center justify-between gap-10"
+                    className="items-center justify-between gap-10"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    <Button
-                      onClick={() => {
-                        console.log(row);
-                        onDelete(row.original);
-                      }}
-                    >
-                      x
-                    </Button>
                   </TableCell>
                 ))}
+                <TableCell className="items-center justify-center text-right">
+                  <Button
+                    onClick={() => {
+                      console.log(row);
+                      onDelete(row.original);
+                    }}
+                  >
+                    x
+                  </Button>
+                </TableCell>
               </TableRow>
             ))
           ) : (
