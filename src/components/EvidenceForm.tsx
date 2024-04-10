@@ -29,6 +29,8 @@ import { cn } from "~/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import MultiSelect, { Option } from "./ui/multi-select";
+import { CalendarIcon } from "lucide-react";
+import { PopoverClose } from "@radix-ui/react-popover";
 
 const EvidenceFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -152,33 +154,78 @@ export function EvidenceForm() {
                 </FormItem>
               )}
             />
-            <FormField
-              name="impact"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Impact</FormLabel>
-                  <FormControl {...field}>
-                    <div className="flex flex-col items-center">
-                      <Slider
-                        defaultValue={[1]}
-                        value={[Number(form.getValues("impact"))]}
-                        onValueChange={(vals) => {
-                          field.onChange(Number(vals[0]));
-                        }}
-                        min={1}
-                        max={5}
-                        step={1}
-                      />
-                      <FormLabel className="mt-2 text-sm">
-                        {field.value}
-                      </FormLabel>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="w-full">
+              <FormField
+                name="impact"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="flex flex-col gap-1">
+                    <FormLabel>Impact</FormLabel>
+                    <FormControl {...field}>
+                      <div className="flex flex-col items-center">
+                        <Slider
+                          defaultValue={[1]}
+                          value={[Number(form.getValues("impact"))]}
+                          onValueChange={(vals) => {
+                            field.onChange(Number(vals[0]));
+                          }}
+                          min={1}
+                          max={5}
+                          step={1}
+                        />
+                        <FormLabel className="mt-2 text-sm">
+                          {field.value}
+                        </FormLabel>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="date"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="flex flex-col gap-1">
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full bg-accent pl-3 text-left font-normal text-primary",
+                              !field.value && "text-muted-foreground ",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverClose>
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverClose>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
           <div className="flex flex-1 flex-col gap-4">
             <FormField
@@ -232,6 +279,18 @@ export function EvidenceForm() {
                     onChange={field.onChange}
                     defaultOptions={tagOptions}
                     options={tagOptions}
+                    onSearch={(searchTerm) => {
+                      if (searchTerm === "") {
+                        return Promise.resolve(tagOptions ?? []);
+                      }
+                      const filteredTags =
+                        tagOptions?.filter((tag) =>
+                          tag.label
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()),
+                        ) ?? [];
+                      return Promise.resolve(filteredTags);
+                    }}
                     placeholder="Select tags..."
                     emptyIndicator={
                       <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
@@ -239,47 +298,6 @@ export function EvidenceForm() {
                       </p>
                     }
                   />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="date"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem className="flex flex-col gap-1">
-                  <FormLabel>Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[240px] bg-accent pl-3 text-left font-normal text-primary",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          {/* <CalendarIcon className="ml-auto h-4 w-4 opacity-50" /> */}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}

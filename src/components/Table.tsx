@@ -32,8 +32,8 @@ export function Table<TData, TValue>({
   });
 
   return (
-    <div className="rounded-xl border bg-primary-foreground">
-      <BaseTable>
+    <div className="rounded-xl border bg-primary-foreground h-full flex flex-col">
+      <BaseTable className="flex flex-col flex-1">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -55,7 +55,7 @@ export function Table<TData, TValue>({
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
+        <TableBody className="flex-1">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow

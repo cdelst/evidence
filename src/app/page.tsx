@@ -12,38 +12,46 @@ import { EvidenceTable } from "~/components/EvidenceTable";
 export default async function Home() {
   const session = await getServerAuthSession();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#9782b6] to-[#7179ff] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-        <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          Evidence
-        </h1>
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex flex-col items-center justify-center gap-4">
-            <p className="text-center text-2xl text-white">
-              {session && <span>Logged in as {session.user?.name}</span>}
-            </p>
+    <main className="flex min-h-screen flex-col bg-gradient-to-b from-[#9782b6] to-[#7179ff] text-white">
+      <header className="bg-gradient-to-r from-purple-500 to-indigo-600 p-5 shadow-lg">
+        <div className="container mx-auto flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Evidence</h1>
+          <div>
+            {session ? (
+              <span>Logged in as {session.user?.name}</span>
+            ) : (
+              <Link href="/api/auth/signin">Sign in</Link>
+            )}
             <Link
               href={session ? "/api/auth/signout" : "/api/auth/signin"}
-              className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
+              className="ml-4 rounded-full bg-white/10 px-4 py-2 font-semibold no-underline transition hover:bg-white/20"
             >
               {session ? "Sign out" : "Sign in"}
             </Link>
           </div>
         </div>
-        <div className="flex flex-row gap-5">
-          <div className="flex flex-col gap-5">
-            <EvidenceTypeForm />
-            <EvidenceTypeTable />
-          </div>
-          <div className="flex flex-col gap-5">
-            <TagForm />
-            <TagTable />
-          </div>
-          <div className="flex flex-col gap-5">
+      </header>
+      <div className="container mx-auto p-8">
+        <div className="grid grid-cols-1 grid-rows-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <section className="col-span-1 lg:col-span-2">
             <EvidenceForm />
-          </div>
+          </section>
+          <section className="col-span-1 lg:col-span-3 lg:row-span-1">
+            <EvidenceTable />
+          </section>
+          <section className="col-span-1 lg:col-span-2">
+            <EvidenceTypeForm />
+          </section>
+          <section className="col-span-1 lg:col-span-3 lg:row-span-1">
+            <EvidenceTypeTable />
+          </section>
+          <section className="col-span-1 lg:col-span-2">
+            <TagForm />
+          </section>
+          <section className="col-span-1 lg:col-span-3 lg:row-span-1">
+            <TagTable />
+          </section>
         </div>
-        <EvidenceTable />
       </div>
     </main>
   );
