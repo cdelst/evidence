@@ -32,6 +32,7 @@ const columns: ColumnDef<Evidence>[] = [
   {
     accessorKey: "tags",
     header: "Tags",
+    size: 2000,
   },
 ];
 
@@ -45,12 +46,16 @@ export function EvidenceTable() {
     return <div>Loading...</div>;
   }
 
-  console.log(data)
-
   const tableData = data.map((evidence) => ({
     ...evidence,
     evidenceType: evidence.type.name,
-    tags: evidence.tags.map((tag) => tag.name).join(", "),
+    tags: evidence.tags
+      .map((tag) => {
+        const splitTag = tag.name.split("/");
+        const newTag = splitTag[0] + "/" + splitTag[3];
+        return newTag;
+      })
+      .join(", "),
   }));
 
   console.log(tableData);

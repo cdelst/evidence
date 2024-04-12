@@ -29,8 +29,15 @@ import { cn } from "~/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import MultiSelect, { Option } from "./ui/multi-select";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { PopoverClose } from "@radix-ui/react-popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "./ui/command";
 
 const EvidenceFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -284,19 +291,29 @@ export function EvidenceForm() {
                         return Promise.resolve(tagOptions ?? []);
                       }
                       const filteredTags =
-                        tagOptions?.filter((tag) =>
-                          tag.label
-                            .toLowerCase()
-                            .includes(searchTerm.toLowerCase()),
-                        ) ?? [];
+                        tagOptions?.filter((tag) => {
+                          const tagName = tag.label.toLowerCase();
+                          const tagDescription = tags?.find(
+                            (t) => t.id === tag.value,
+                          )?.description;
+                          return (
+                            tagName.includes(searchTerm.toLowerCase()) ||
+                            tagDescription?.includes(searchTerm.toLowerCase())
+                          );
+                        }) ?? [];
                       return Promise.resolve(filteredTags);
                     }}
-                    placeholder="Select tags..."
+                    placeholder={
+                      tags?.length === 0
+                        ? "Create a tag first"
+                        : "Select tags..."
+                    }
                     emptyIndicator={
                       <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
                         no results found.
                       </p>
                     }
+                    disabled={tags?.length === 0}
                   />
                   <FormMessage />
                 </FormItem>

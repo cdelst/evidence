@@ -11,6 +11,7 @@ import { EvidenceTable } from "~/components/EvidenceTable";
 
 export default async function Home() {
   const session = await getServerAuthSession();
+
   return (
     <main className="flex min-h-screen flex-col bg-gradient-to-b from-[#9782b6] to-[#7179ff] text-white">
       <header className="bg-gradient-to-r from-purple-500 to-indigo-600 p-5 shadow-lg">
@@ -36,17 +37,17 @@ export default async function Home() {
           <section className="col-span-1 lg:col-span-2">
             <EvidenceForm />
           </section>
-          <section className="col-span-1 lg:col-span-3 lg:row-span-1">
-            <EvidenceTable />
+          <section className="col-span-1 lg:col-span-1">
+            <TagForm />
           </section>
-          <section className="col-span-1 lg:col-span-2">
+          <section className="col-span-1 lg:col-span-1">
             <EvidenceTypeForm />
           </section>
-          <section className="col-span-1 lg:col-span-3 lg:row-span-1">
+          <section className="lg:col-span- col-span-1 lg:row-span-1 lg:row-span-1">
             <EvidenceTypeTable />
           </section>
-          <section className="col-span-1 lg:col-span-2">
-            <TagForm />
+          <section className="col-span-1 lg:col-span-5 lg:row-span-2">
+            <EvidenceTable />
           </section>
           <section className="col-span-1 lg:col-span-3 lg:row-span-1">
             <TagTable />

@@ -14,15 +14,18 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { z } from "zod";
 import { apiClient } from "~/trpc/react";
+import { Textarea } from "./ui/textarea";
 
 const TagFormSchema = z.object({
-  tagName: z.string().min(1, { message: "Tag name is required" }),
+  name: z.string().min(1, { message: "Tag name is required" }),
+  description: z.string(),
 });
 
 type TagFormSchema = z.infer<typeof TagFormSchema>;
 
 const defaultValues: TagFormSchema = {
-  tagName: "",
+  name: "",
+  description: "",
 };
 
 export function TagForm() {
@@ -34,8 +37,8 @@ export function TagForm() {
   const createTag = apiClient.tags.createTag.useMutation();
 
   const apiUtils = apiClient.useUtils();
-  const handleSubmit = form.handleSubmit(async (data) => {
-    await createTag.mutateAsync({ name: data.tagName });
+  const handleSubmit = form.handleSubmit(async ({ name, description }) => {
+    await createTag.mutateAsync({ name, description });
     await apiUtils.tags.invalidate();
 
     form.reset();
@@ -45,11 +48,11 @@ export function TagForm() {
     <Form {...form}>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-4 rounded-xl bg-card p-6"
+        className="flex  flex-col gap-4 rounded-xl bg-card p-6"
       >
         <FormLabel>Create Tag</FormLabel>
         <FormField
-          name="tagName"
+          name="name"
           control={form.control}
           render={({ field }) => {
             return (
@@ -59,6 +62,20 @@ export function TagForm() {
                   <Input type="text" placeholder="Enter tag name" {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <FormField
+          name="description"
+          control={form.control}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl {...field}>
+                  <Textarea {...field} />
+                </FormControl>
               </FormItem>
             );
           }}

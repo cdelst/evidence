@@ -9,6 +9,9 @@ export const evidenceRouter = createTRPCRouter({
         type: true,
         tags: true,
       },
+      orderBy: {
+        date: "desc",
+      },
     });
   }),
 

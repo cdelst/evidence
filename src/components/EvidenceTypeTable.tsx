@@ -4,6 +4,8 @@ import { apiClient } from "~/trpc/react";
 import { Table } from "@/components/Table";
 import { type EvidenceType } from "@prisma/client";
 import { type ColumnDef } from "@tanstack/react-table";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 
 const columns: ColumnDef<EvidenceType>[] = [
   {
@@ -27,5 +29,25 @@ export function EvidenceTypeTable() {
     await utils.evidenceType.invalidate();
   };
 
-  return <Table data={data} columns={columns} onDelete={onDelete} />;
+  return (
+    <div className="flex h-full flex-row flex-wrap rounded-2xl bg-primary-foreground p-4">
+      {data.map((evidenceType) => (
+        <div key={evidenceType.id}>
+          <Badge
+            key={evidenceType.id}
+            variant="default"
+            className="mr-2 text-sm"
+          >
+            {evidenceType.name}
+            <button
+              onClick={() => onDelete(evidenceType)}
+              className="ml-2 cursor-pointer "
+            >
+              X
+            </button>
+          </Badge>
+        </div>
+      ))}
+    </div>
+  );
 }

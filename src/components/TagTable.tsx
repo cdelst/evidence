@@ -10,6 +10,10 @@ const columns: ColumnDef<Tag>[] = [
     accessorKey: "name",
     header: "Name",
   },
+  {
+    accessorKey: "description",
+    header: "Description",
+  },
 ];
 
 export function TagTable() {
@@ -26,5 +30,9 @@ export function TagTable() {
     await utils.tags.invalidate();
   };
 
-  return <Table data={data} columns={columns} onDelete={onDelete} />;
+  return (
+    <div className="h-96">
+      <Table data={data} columns={columns} onDelete={onDelete} />
+    </div>
+  );
 }
