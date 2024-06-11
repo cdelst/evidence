@@ -1,9 +1,9 @@
 "use client";
 
-import { apiClient } from "~/trpc/react";
 import { Table } from "@/components/Table";
 import { type Tag } from "@prisma/client";
 import { type ColumnDef } from "@tanstack/react-table";
+import { apiClient } from "~/trpc/react";
 
 const columns: ColumnDef<Tag>[] = [
   {
@@ -32,7 +32,7 @@ export function TagTable() {
 
   return (
     <div className="h-96">
-      <Table data={data} columns={columns} onDelete={onDelete} />
+      <Table onEdit={() => {console.log("implement me")}} data={data} columns={columns} onDelete={onDelete} />
     </div>
   );
 }

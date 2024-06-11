@@ -1,11 +1,9 @@
 "use client";
 
-import { apiClient } from "~/trpc/react";
-import { Table } from "@/components/Table";
 import { type EvidenceType } from "@prisma/client";
 import { type ColumnDef } from "@tanstack/react-table";
+import { apiClient } from "~/trpc/react";
 import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
 
 const columns: ColumnDef<EvidenceType>[] = [
   {

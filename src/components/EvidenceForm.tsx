@@ -1,21 +1,28 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PopoverClose } from "@radix-ui/react-popover";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { apiClient } from "~/trpc/react";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
-  FormControl,
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
+import { cn } from "~/lib/utils";
+import { apiClient } from "~/trpc/react";
 import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
+import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import MultiSelect from "./ui/multi-select";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Select,
   SelectContent,
@@ -24,20 +31,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Slider } from "./ui/slider";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { cn } from "~/lib/utils";
-import { format } from "date-fns";
-import { Calendar } from "./ui/calendar";
-import MultiSelect, { Option } from "./ui/multi-select";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import { PopoverClose } from "@radix-ui/react-popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "./ui/command";
+import { Textarea } from "./ui/textarea";
 
 const EvidenceFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -60,7 +54,8 @@ const EvidenceFormSchema = z.object({
 
 type EvidenceFormSchema = z.infer<typeof EvidenceFormSchema>;
 
-const defaultValues: EvidenceFormSchema = {
+const defaultValues: EvidenceFormSchema & { id: string } = {
+  id: "",
   title: "",
   impact: "1",
   date: new Date(),
@@ -71,21 +66,30 @@ const defaultValues: EvidenceFormSchema = {
   tags: [],
 };
 
-export function EvidenceForm() {
+export function EvidenceForm({
+  initialData,
+  handleClose,
+}: {
+  initialData?: EvidenceFormSchema & { id: string };
+  handleClose: () => void;
+}) {
   const form = useForm<EvidenceFormSchema>({
     resolver: zodResolver(EvidenceFormSchema),
-    defaultValues,
+    defaultValues: initialData ?? defaultValues,
   });
+
+  const [useCustomEvidenceType, setUseCustomEvidenceType] = useState(false);
 
   const utils = apiClient.useUtils();
 
   const createEvidence = apiClient.evidence.createEvidence.useMutation();
+  const updateEvidence = apiClient.evidence.updateEvidence.useMutation();
 
   const handleSubmit = form.handleSubmit(async (data) => {
     console.log("submitting");
     const transformedData = {
       ...data,
-      type: data.evidenceType,
+      type: useCustomEvidenceType ? data.evidenceType : defaultEvidenceType ?? "",
       impact: Number(data.impact), // Convert impact from string to number
       tags: data.tags.map((tag) => tag.value),
     };
@@ -96,10 +100,20 @@ export function EvidenceForm() {
       return; // Optionally handle this case more gracefully
     }
 
-    // Now transformedData should match the expected structure
-    await createEvidence.mutateAsync(transformedData);
+    if (initialData) {
+      // Update existing evidence
+      await updateEvidence.mutateAsync({
+        id: initialData.id,
+        ...transformedData,
+      });
+    } else {
+      // Create new evidence
+      await createEvidence.mutateAsync(transformedData);
+    }
+
     await utils.evidence.invalidate();
     form.reset();
+    handleClose();
   });
 
   const { data: evidenceTypes } =
@@ -112,11 +126,20 @@ export function EvidenceForm() {
     value: tag.id,
   }));
 
+  // Find the matching evidence type to pre-set it when given initialData
+  const defaultEvidenceType = initialData
+    ? evidenceTypes?.find((type) => type.name === initialData.evidenceType)?.id
+    : "";
+
+  form.setValue("evidenceType", defaultEvidenceType ?? ""); 
+
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className="gap-6 rounded-xl bg-card p-6">
         <div className="flex flex-col gap-5">
-          <Label className="text-3xl text-primary ">Create Evidence</Label>
+          <Label className="text-3xl text-primary ">
+            {initialData ? "Edit Evidence" : "Create Evidence"}
+          </Label>
           <div className="flex flex-1 flex-wrap gap-4">
             <FormField
               name="title"
@@ -139,8 +162,13 @@ export function EvidenceForm() {
                   <FormLabel>Evidence Type</FormLabel>
                   <FormControl {...field}>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setUseCustomEvidenceType(true);
+                      }}
+                      value={
+                        useCustomEvidenceType ? field.value : defaultEvidenceType
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -322,7 +350,7 @@ export function EvidenceForm() {
           </div>
           <div className="flex w-full justify-end">
             <Button type="submit" className="mt-2 w-min">
-              Submit
+              {initialData ? "Update" : "Submit"}
             </Button>
           </div>
         </div>
